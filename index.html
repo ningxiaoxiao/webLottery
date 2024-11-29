@@ -75,8 +75,8 @@
             padding: 8px;
             width: 640px;
             text-align: center;
-            background: #ff3;
-            border: 6px solid #03f;
+            /* background: #ff3; */
+            /* border: 6px solid #03f; */
         }
 
         #current_step {
@@ -178,7 +178,7 @@
                         <li class="ui-corner-top ui-state-default"><a href="#tabs-4">帮助</a></li>
                     </ul>
 
-                    <div id="tabs-1" style="background: url(&quot;images/2.jpg&quot;) center center no-repeat;" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+                    <div id="tabs-1" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <h1 id="event_title"><span>抽奖活动</span></h1>
 
                         <div id="rotate_div" style="display: block;">
@@ -387,11 +387,9 @@
                             }
 
                             show_current_step('');
-                            var str = '请按回车开始';
-                            str += '<br/><br/>';
                             print_box('请按回车开始');
-
-                            $('#rolling_board').hide();
+                            $('#rolling_board').show();
+                            $('#rolling_board').html('...');
                             $('#rotate_div').css('background', '');
                         }
 
@@ -445,21 +443,12 @@
                     }
 
                     function on_open() {
-                        show_current_step('活动说明');
-
-                        var str = '<table align="center">';
-                        str += '<tr><th>奖项</th><th>数量</th><th>奖品</th></tr>\n';
-                        for (var i = game.prizes.length - 1; i >= 0; i--) {
-                            var p = game.prizes[i];
-                            str += '<tr><td>' + p.name + '</td><td>' + p.num + '</td><td>' + p.award + '</td></tr>\n';
-                        }
-                        str += '</table>';
-                        print_box(str);
+                        // 直接修改状态到 rotate_start，开始滚动
+                        game.action = 'rotate_start';
+                        on_rotate_start();
                     }
 
                     function on_close() {
-                        show_current_step('');
-
                         $('#print_box').hide();
                         var str = '';
                         str += '<span><b style="font-size: 62px;">抽奖结束</b><span><br/>';
@@ -470,7 +459,8 @@
                     function on_step_open() {
                         show_current_step();
                         print_box('按回车开始');
-                        $('#rolling_board').html('...');
+                        // 不显示静态的...，直接开始滚动
+                        on_rotate_start();
                     }
 
                     function on_step_close() {
@@ -486,15 +476,13 @@
                         }
                         str += '</span>';
 
-                        print_box(str);
-                        $('#rolling_board').slideUp('normal');
+                        // 直接显示结果，不使用动画
+                        $('#print_box').html(str);
+                        $('#print_box').show();
                     }
 
                     function on_rotate_start() {
-                        $('#rolling_board').slideDown('normal');
-
                         game.interval = parseInt($('input[name=interval]').val());
-
                         game.stop = false;
                         game.rotate_index = 0;
 
@@ -505,6 +493,9 @@
 
                         show_current_step();
                         print_box('按回车停止');
+                        
+                        // 直接修改状态为 rotate_stop，这样下一次回车就会停止
+                        game.action = 'rotate_stop';
                     }
 
 
@@ -567,7 +558,7 @@
                             str += ')';
                         }
                         if (str == '') {
-                            $('#current_step').hide('fast');
+                            // $('#current_step').hide('fast');
                         } else {
                             $('#current_step').html(str);
                             $('#current_step').show();
@@ -634,7 +625,8 @@
                         }
 
                         $('#event_title span').html($('input[name=title]').val());
-                        $('#tabs-1').css('background', 'url(' + $('input[name=background_image]').val() + ') center center no-repeat');
+                        // 注释掉或删除设置背景图片的代码
+                        // $('#tabs-1').css('background', 'url(' + $('input[name=background_image]').val() + ') center center no-repeat');
 
                         game.init();
                     }
