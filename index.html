@@ -63,7 +63,7 @@
 
         #event_title span {
             padding: 0 32px;
-            background: #f00;
+            background: #000;
         }
 
         #rolling_board {
@@ -184,7 +184,7 @@
                         <div id="rotate_div" style="display: block;">
                             <div><span id="current_step" style="display: none;">一等奖(1个)</span></div>
 
-                            <div id="rolling_board" style="display: none;"><span style="color: #f33">员工L</span></div>
+                            <div id="rolling_board" style="display: none;"><span style="color: #000">员工L</span></div>
 
                             <div id="print_box" style="display: block;">请按回车开始</div>
                         </div>
@@ -536,7 +536,7 @@
                                 game.action = 'step_close';
                             }
 
-                            var h = '<span style="color: #f33">' + $('#rolling_board').html() + '</span>';
+                            var h = '<span style="color: #000">' + $('#rolling_board').html() + '</span>';
                             $('#rolling_board').html(h)
                         } else {
                             setTimeout('rotate_run()', game.interval);
