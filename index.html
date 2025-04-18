@@ -117,9 +117,14 @@
         #rotate_div {
             padding-top: 60px;
             height: 400px;
+            position: relative;
         }
 
         #print_box {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
             margin-top: 30px;
             font-weight: bold;
             font-size: 28px;
@@ -183,9 +188,7 @@
 
                         <div id="rotate_div" style="display: block;">
                             <div><span id="current_step" style="display: none;">一等奖(1个)</span></div>
-
                             <div id="rolling_board" style="display: none;"><span style="color: #000">员工L</span></div>
-
                             <div id="print_box" style="display: block;">请按回车开始</div>
                         </div>
                     </div>
@@ -515,7 +518,7 @@
                         }
 
                         var arr = array_slice(game.candidates, game.rotate_index, size);
-                        $('#rolling_board').html(arr.join(' '));
+                        $('#rolling_board').html(arr.join('<br/>'));
 
                         game.rotate_index += num_a;
                         if (game.rotate_index >= game.candidates.length) {
@@ -536,7 +539,7 @@
                                 game.action = 'step_close';
                             }
 
-                            var h = '<span style="color: #000">' + $('#rolling_board').html() + '</span>';
+                            var h = '<span style="color: #000">' + $('#rolling_board').html().replace(/ /g, '<br/>') + '</span>';
                             $('#rolling_board').html(h)
                         } else {
                             setTimeout('rotate_run()', game.interval);
