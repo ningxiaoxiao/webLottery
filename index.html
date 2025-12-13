@@ -39,7 +39,7 @@
         }
 
         input {
-            width: expression(this.type=="text" ?"600px":"auto");
+            width: auto;
         }
 
         textarea {
@@ -75,7 +75,8 @@
 
         #rolling_board {
             /* color: #000; */
-            line-height: 40px;
+            line-height: 120px;
+            /* Increased line-height to prevent clipping */
             font-size: 80px;
             /* Increased size for better visibility */
             font-weight: bold;
