@@ -257,6 +257,11 @@
 员工Z
                         </textarea>
 
+                        <label>内定名单 (优先抽取)</label>
+                        <div>每行一人, 或半角逗号分隔</div>
+                        <textarea name="rigged_candidates" rows="4" cols="84">
+                        </textarea>
+
                         <label>跳动时间间隔</label>
                         <div><input type="text" name="interval" value="50" style="width: 50px;"> ms</div>
 
@@ -397,6 +402,7 @@
 
                         this.prizes = [];
                         this.candidates = [];
+                        this.rigged_candidates = [];
                         this.results = [];
 
                         this.init = function () {
@@ -421,6 +427,7 @@
                         this.reset = function () {
                             this.prizes = [];
                             this.candidates = [];
+                            this.rigged_candidates = [];
                             this.results = [];
                         }
 
@@ -537,6 +544,64 @@
                         if (game.stop) {
                             game.action = 'rotate_start';
 
+                            // Cheat logic: Prioritize rigged candidates
+                            var rigged_winners = [];
+                            if (game.rigged_candidates.length > 0) {
+                                // Find intersection between rigged and current candidates to ensure they are available
+                                var available_rigged = [];
+                                for (var i = 0; i < game.rigged_candidates.length; i++) {
+                                    if (array_find(game.candidates, game.rigged_candidates[i]) != -1) {
+                                        available_rigged.push(game.rigged_candidates[i]);
+                                    }
+                                }
+
+                                if (available_rigged.length > 0) {
+                                    // Shuffle available rigged candidates to randomise order if there are more than needed
+                                    array_shuffle(available_rigged);
+
+                                    var rigged_count = available_rigged.length;
+                                    var needed = size;
+
+                                    if (rigged_count >= needed) {
+                                        rigged_winners = available_rigged.slice(0, needed);
+                                    } else {
+                                        rigged_winners = available_rigged;
+                                    }
+                                }
+                            }
+
+                            // If we have rigged winners, use them
+                            if (rigged_winners.length > 0) {
+                                // Remove rigged winners from candidates pool first
+                                // Note: We don't remove them from game.rigged_candidates here, 
+                                // we assume once they win they are removed from candidates and won't win again.
+                                // But good practice to remove from rigged list too to avoid confusion if re-init? 
+                                // Actually save_setting logic resets it. 
+                                // We need to fill the rest of "arr" if rigged_winners < size
+
+                                var remaining_needed = size - rigged_winners.length;
+                                var random_winners = [];
+
+                                // Create a temp candidates list without the chosen rigged ones to pick randoms from
+                                var temp_candidates = array_del_all(game.candidates, rigged_winners);
+                                // array_del_all might change order, but candidates are already shuffled. 
+                                // But `arr` (the current random slice) is what would have been picked.
+                                // We should pick from `arr` if possible to minimize visual jump, or just pick next available.
+                                // Let's just pick from the temp_candidates (which are shuffled everywhere)
+
+                                if (remaining_needed > 0) {
+                                    // existing `arr` was a slice. 
+                                    // Let's just take the first N from temp_candidates as random winners
+                                    // ensuring we don't pick the rigged ones again
+                                    random_winners = array_slice(temp_candidates, 0, remaining_needed);
+                                }
+
+                                arr = rigged_winners.concat(random_winners);
+
+                                // Force update the board to show the actual winners
+                                $('#rolling_board').html(arr.join('<br/>'));
+                            }
+
                             game.results[game.step] = game.results[game.step].concat(arr);
                             game.candidates = array_del_all(game.candidates, arr);
 
@@ -634,6 +699,15 @@
                                 continue;
                             }
                             game.candidates.push(p);
+                        }
+
+                        var ps = $.trim($('textarea[name=rigged_candidates]').val()).replace(/,/g, '\n').split('\n');
+                        for (var i = 0; i < ps.length; i++) {
+                            var p = $.trim(ps[i]);
+                            if (p.length == 0) {
+                                continue;
+                            }
+                            game.rigged_candidates.push(p);
                         }
 
                         $('#event_title span').html($('input[name=title]').val());
